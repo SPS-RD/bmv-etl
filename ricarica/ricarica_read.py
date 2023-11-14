@@ -3,9 +3,11 @@ from oracledb import Cursor
 from pandas import DataFrame
 
 from json_utils import utils
-def get_pv_selezione_bonus(oracle_cursor: Cursor) -> str:
 
-    with open('sql/read_selezione_bonus.sql', 'r') as file:
+
+def get_pv_ivr_ricarica(oracle_cursor: Cursor) -> str:
+
+    with open('sql/ricarica/read_ricarica.sql', 'r') as file:
         sql_query = file.read()
     oracle_cursor.execute(sql_query)
     columns = [desc[0] for desc in oracle_cursor.description]
