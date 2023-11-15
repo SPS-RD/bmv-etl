@@ -5,7 +5,7 @@ import pandas as pd
 
 import read_data
 from catalogo import campagna_sec_write, punto_vendita_write, white_list_write, black_list_write, anagrafiche_write, \
-    partner_write
+    partner_write, limits_write, pin_prefix_write, utenza_rinnovabile_write
 from promozioni import promozioni_write
 from promozioni.bonus import bonus_write
 from promozioni.criteri import criteri_write
@@ -17,15 +17,24 @@ from ricarica import ricarica_write
 
 def launch_etl(mongo_client, oracle_cursor):
     logging.info("ETL Start")
-    etl_promozioni(mongo_client, oracle_cursor)
     etl_ricarica(mongo_client, oracle_cursor)
+    etl_catalogo(mongo_client, oracle_cursor)
+    logging.info("ETL Done")
+
+
+def etl_catalogo(mongo_client, oracle_cursor):
+    logging.info("ETL Catalogo Start")
+    etl_promozioni(mongo_client, oracle_cursor)
     etl_campagna_sec(mongo_client, oracle_cursor)
     etl_punto_vendita(mongo_client, oracle_cursor)
     etl_white_list(mongo_client, oracle_cursor)
     etl_black_list(mongo_client, oracle_cursor)
     etl_anagrafiche_auth_id(mongo_client, oracle_cursor)
     etl_partner(mongo_client, oracle_cursor)
-    logging.info("ETL Done")
+    etl_p1a_act_limits(mongo_client, oracle_cursor)
+    etl_pin_prefix(mongo_client, oracle_cursor)
+    etl_utenza_rinnovabile(mongo_client, oracle_cursor)
+    logging.info("ETL Catalogo Done")
 
 
 def etl_promozioni(mongo_client, oracle_cursor):
@@ -131,3 +140,27 @@ def etl_partner(mongo_client, oracle_cursor):
     partner_to_insert = pd.read_json(StringIO(partner_data))
     partner_write.write(partner_to_insert, mongo_client)
     logging.info("Done Reading and writing 'partner'.")
+
+
+def etl_p1a_act_limits(mongo_client, oracle_cursor):
+    logging.info("Reading and writing 'etl_p1a_act_limits'...")
+    limits_data = read_data.read(oracle_cursor, 'sql/catalogo/p1a_act_limits_read.sql')
+    limits_to_insert = pd.read_json(StringIO(limits_data))
+    limits_write.write(limits_to_insert, mongo_client)
+    logging.info("Done Reading and writing 'etl_p1a_act_limits'.")
+
+
+def etl_pin_prefix(mongo_client, oracle_cursor):
+    logging.info("Reading and writing 'pin_prefix'...")
+    pin_prefix_data = read_data.read(oracle_cursor, 'sql/catalogo/pin_prefix_read.sql')
+    pin_prefix_to_insert = pd.read_json(StringIO(pin_prefix_data))
+    pin_prefix_write.write(pin_prefix_to_insert, mongo_client)
+    logging.info("Done Reading and writing 'pin_prefix'.")
+
+
+def etl_utenza_rinnovabile(mongo_client, oracle_cursor):
+    logging.info("Reading and writing 'utenza_rinnovabile'...")
+    utenza_rinnovabile_data = read_data.read(oracle_cursor, 'sql/catalogo/utenza_rinnovabile_read.sql')
+    utenza_rinnovabile_to_insert = pd.read_json(StringIO(utenza_rinnovabile_data))
+    utenza_rinnovabile_write.write(utenza_rinnovabile_to_insert, mongo_client)
+    logging.info("Done Reading and writing 'utenza_rinnovabile'.")
