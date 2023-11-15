@@ -9,12 +9,16 @@ from promozioni.relazioni import relazioni_read, relazioni_write
 from promozioni.relazioni_bonus import relazioni_bonus_write, relazioni_bonus_read
 from promozioni.selezione_bonus import selezione_bonus_write, selezione_bonus_read
 from promozioni.bonus import bonus_read, bonus_write
+from catalogo import campagna_sec_read, campagna_sec_write, punto_vendita_read, punto_vendita_write
 from ricarica import ricarica_read, ricarica_write
+
 
 def launch_etl(mongo_client, oracle_cursor):
     logging.info("ETL Start")
     etl_promozioni(mongo_client, oracle_cursor)
     etl_ricarica(mongo_client, oracle_cursor)
+    etl_campagna_sec(mongo_client, oracle_cursor)
+    etl_punto_vendita(mongo_client, oracle_cursor)
     logging.info("ETL Done")
 
 
@@ -57,9 +61,26 @@ def etl_promozioni(mongo_client, oracle_cursor):
     selezione_bonus_write.write(selezioni_bonus_to_insert, mongo_client)
     logging.info("Done Reading and Writing 'selezioni_bonus' and 'bonus'")
 
+
 def etl_ricarica(mongo_client, oracle_cursor):
     logging.info("Reading and writing 'ricarica'...")
     ricarica_data = ricarica_read.get_pv_ivr_ricarica(oracle_cursor)
     ricarica_data_to_insert = pd.read_json(StringIO(ricarica_data))
     ricarica_write.write(ricarica_data_to_insert, mongo_client)
     logging.info("Done Reading and writing 'ricarica'.")
+
+
+def etl_campagna_sec(mongo_client, oracle_cursor):
+    logging.info("Reading and writing 'campagna_sec'...")
+    campagna_sec_data = campagna_sec_read.get_pv_campagna_sec(oracle_cursor)
+    campagna_sec_data_to_insert = pd.read_json(StringIO(campagna_sec_data))
+    campagna_sec_write.write(campagna_sec_data_to_insert, mongo_client)
+    logging.info("Done Reading and writing 'campagna_sec'.")
+
+
+def etl_punto_vendita(mongo_client, oracle_cursor):
+    logging.info("Reading and writing 'punto_vendita'...")
+    punto_vendita_data = punto_vendita_read.get_pv_puntovendita(oracle_cursor)
+    punto_vendita_insert = pd.read_json(StringIO(punto_vendita_data))
+    punto_vendita_write.write(punto_vendita_insert, mongo_client)
+    logging.info("Done Reading and writing 'punto_vendita'.")
