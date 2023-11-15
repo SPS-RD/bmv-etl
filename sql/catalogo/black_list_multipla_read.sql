@@ -1,0 +1,2 @@
+select IDBLACKLISTMULTIPLA as black_list__multipla_id, NOMELISTAMULTIPLA as nome_lista_multipla
+from PV_BLACKLIST_MULTIPLA
