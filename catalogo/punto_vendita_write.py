@@ -1,7 +1,5 @@
-import os
-def write(punto_vendita_to_insert, mongo_client):
-    mongo_db = mongo_client[os.environ.get('MONGO_DB_NAME')]
-    collection = mongo_db['punto_vendita']
+import write_data
 
-    punto_vendita_data = punto_vendita_to_insert.to_dict(orient='records')
-    collection.insert_many(punto_vendita_data)
+
+def write(punto_vendita_to_insert):
+    write_data.write_file(punto_vendita_to_insert, "punto_vendita.json")

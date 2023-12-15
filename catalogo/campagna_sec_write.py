@@ -1,7 +1,6 @@
-import os
-def write(campagna_sec_to_insert, mongo_client):
-    mongo_db = mongo_client[os.environ.get('MONGO_DB_NAME')]
-    collection = mongo_db['campagne_sec']
+import write_data
 
-    campagna_sec_data = campagna_sec_to_insert.to_dict(orient='records')
-    collection.insert_many(campagna_sec_data)
+
+def write(campagna_sec_to_insert):
+    # campagna_sec_data = campagna_sec_to_insert.to_dict(orient='records')
+    write_data.write_file(campagna_sec_to_insert, "campagna_sec_to_write.json")

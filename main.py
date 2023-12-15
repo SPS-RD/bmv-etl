@@ -46,14 +46,13 @@ def main():
     logging.info("Launching ETL")
     try:
         oracle_cursor = get_oracle_cursor()
-        mongo_client = get_mongo_client()
-        etl.launch_etl(mongo_client=mongo_client, oracle_cursor=oracle_cursor)
+        # mongo_client = get_mongo_client()
+        etl.launch_etl(oracle_cursor=oracle_cursor)
 
     finally:
         # Chiudi i cursori e le connessioni
         logging.info("Closing database connections")
         oracle_cursor.close()
-        mongo_client.close()
         logging.info("Done.")
 
 if __name__ == "__main__":

@@ -1,8 +1,7 @@
 import os
 
+import write_data
 
-def write(pin_prefix_to_insert, mongo_client):
-    mongo_db = mongo_client[os.environ.get('MONGO_DB_NAME')]
-    collection = mongo_db['pin_prefix']
-    pin_prefix_data = pin_prefix_to_insert.to_dict(orient='records')
-    collection.insert_many(pin_prefix_data)
+
+def write(pin_prefix_to_insert):
+    write_data.write_file(pin_prefix_to_insert, "pin_prefix.json")
