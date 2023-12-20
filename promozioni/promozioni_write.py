@@ -20,6 +20,8 @@ def new_write(promozioni, bonuss, criteri, relazioni, relazioni_bonus, relazioni
     relazioni_bonus_data = json.loads(relazioni_bonus)
     relazioni_b_data = json.loads(relazioni_b)
     selezioni_bonus_data = json.loads(selezioni_bonus)
+
+    split_indexes = list(range(99, len(promozioni_data), 100))
     for i, promozione in enumerate(promozioni_data):
         logging.info(f"working #promozione: {i} out of {len(promozioni_data)}")
         for bonus in bonus_data:
@@ -28,12 +30,6 @@ def new_write(promozioni, bonuss, criteri, relazioni, relazioni_bonus, relazioni
                     promozione['bonusNotRel'].append(bonus)
                 else:
                     promozione['bonusNotRel'] = [bonus]
-        for criterio in criteri_data:
-            if promozione['promozione_id'] == criterio['promozione_id']:
-                if 'criteri' in promozione:
-                    promozione['criteri'].append(criterio)
-                else:
-                    promozione['criteri'] = [criterio]
         for criterio in criteri_data:
             if promozione['promozione_id'] == criterio['promozione_id']:
                 if 'criteri' in promozione:
@@ -78,5 +74,14 @@ def new_write(promozioni, bonuss, criteri, relazioni, relazioni_bonus, relazioni
                                     promozione['selezione_bonus'].append(nuova_selezione_bonus)
                                 else:
                                     promozione['selezione_bonus'] = [nuova_selezione_bonus]
+        if i in split_indexes:  # i%100 ranges from 0 to 99, so if it's 99, that means we've finished 100 records
+            filename = f'promozioni_{split_indexes.index(i)}.json'  # Generate a new filename based on how many
+            # batches of 100 items we've finished
+            write_data.write_file(promozioni_data[(i - 99):(i + 1)], filename)  # Write to the file
 
-    write_data.write_file(promozioni, "promozioni.json")
+    # Write remaining records, if there are any
+    remaining_records_start = split_indexes[-1] + 1 if split_indexes else 0
+    if remaining_records_start < len(promozioni_data):
+        filename = f'promozioni_{len(split_indexes)}.json'  # This will be the next file in the sequence
+        write_data.write_file(promozioni_data[remaining_records_start:], filename)
+    logging.info("Data written to files.")
